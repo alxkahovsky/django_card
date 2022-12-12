@@ -1,0 +1,37 @@
+{% extends 'admin/change_list.html' %}
+
+
+{% block object-tools %}
+  <script type="text/javascript">
+  function check_input(id){
+      var elem = document.getElementById(id);
+      var regex =  /^\d+$/;
+      if( !regex.test(elem.value) ) {
+          if (id == 'series-input'){
+              alert('Серия карты должна иметь значение 0000 - 9999')
+
+          } else {
+              alert('Количество карт для генерации должно быть числом в диапазоне 1 - 9999')
+          }
+          elem.value = ''
+      }
+  }
+  </script>
+  <h4>Генератор карт:</h4>
+  <form action="generate/" method="POST">
+    {% csrf_token %}
+    <label for="series">Серия карты</label>
+    <input id="series-input" type="text" name="series" required="required" maxlength="4"
+           minlength="4" onchange="check_input(this.id)">
+    <label for="quantity">Кол-во</label>
+    <input id="quantity-input" type="text" name="quantity" required="required" maxlength="4" onchange="check_input(this.id)">
+    <label for="cars">Выберите срок</label>
+    <select name="datetime">
+      <option value="1year">1 Год</option>
+      <option value="6months">6 мес</option>
+      <option value="1month">1 мес</option>
+    </select>
+    <input type="submit" value="Создать записи" />
+  </form>
+    {{ block.super }}
+{% endblock %}

@@ -1,9 +1,10 @@
 from django.db import models
 from django.utils import timezone
-from django.core.validators import MaxLengthValidator, MinLengthValidator
+from django.core.validators import MaxLengthValidator, MinLengthValidator, RegexValidator
 from django.conf import settings
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
+
 
 class CardStatus(models.TextChoices):
     active = 'A', 'Активна'
@@ -12,21 +13,22 @@ class CardStatus(models.TextChoices):
 
 
 class Card(models.Model):
-    """Дополнительно создано поле full_number с параметром unique=True, поскольку ни серия, ни номер карты не могут
-    быть уникальными сами по себе. Модель связана по внешнему ключу с моделью User, тк у пользователя может быть
-    несколько карт разных типов"""
-    series = models.CharField(max_length=4, validators=[MinLengthValidator(4), MaxLengthValidator(4)],
+    """Дополнительно модель связана по внешнему ключу с моделью User, тк у пользователя может быть
+    несколько карт разных типов. В мете модели определили unique_together для серии и номера карты, тк
+    сами по себе данные поля не могут быть уникальными"""
+    series = models.CharField(max_length=4, validators=[MinLengthValidator(4), MaxLengthValidator(4),
+                                                RegexValidator(r'^[0-9]*$', 'Only numbers characters are allowed.')],
                                            verbose_name='Серия карты',
-                                           help_text='4 цифры, например: 0001', db_index=True, default=None)
-    number = models.CharField(max_length=12, validators=[MinLengthValidator(12), MaxLengthValidator(12)],
+                                           help_text='4 цифры, например: 0001', db_index=True, default=None,)
+    number = models.CharField(max_length=12, validators=[MinLengthValidator(12), MaxLengthValidator(12),
+                                                RegexValidator(r'^[0-9]*$', 'Only numbers characters are allowed.')],
                                          verbose_name='Номер карты',
                                          help_text='12 цифр,  например: 0001000000000001', db_index=True, default=None)
-    full_number = models.CharField(max_length=12, validators=[MinLengthValidator(16), MaxLengthValidator(16)],
-                                                                unique=True, verbose_name='Полный номер')
     start_date = models.DateTimeField(default=timezone.now, verbose_name='Дата выдачи карты', db_index=True)
     end_date = models.DateTimeField(default=timezone.now, verbose_name='Дата окончания карты', db_index=True)
     status = models.CharField(choices=CardStatus.choices, default='I', verbose_name='Статус карты', max_length=1)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь', null=True,
+                             blank=True)
     created = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name='Дата создания записи')
     updated = models.DateTimeField(blank=True, null=True, auto_now=True, verbose_name='Дата ред-ия записи')
 
@@ -40,4 +42,5 @@ class Card(models.Model):
         verbose_name = 'Карта'
         verbose_name_plural = 'Карты'
         ordering = ['end_date']
+        unique_together = ['series', 'number']
 

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cards',
     'orders',
+    'background_task',
 ]
 
 MIDDLEWARE = [
