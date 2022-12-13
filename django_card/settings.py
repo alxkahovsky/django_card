@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'cards',
     'orders',
     'background_task',
+    'django_card',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +81,7 @@ WSGI_APPLICATION = 'django_card.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'prod_db.sqlite3',
     }
 }
 
@@ -125,3 +126,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+try:
+    from .settings_local import *
+except Exception as e:
+    print(e)
+    pass
