@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.urls import path
 import datetime
+from django.contrib.admin import DateFieldListFilter, FieldListFilter
 
 
 
@@ -22,11 +23,16 @@ class OrderInline(admin.TabularInline):
 @admin.register(Card)
 class CardAdmin(admin.ModelAdmin):
     fields = [('series', 'number'), ('start_date', 'end_date'), 'status', 'user', ('created', 'updated')]
-    list_display = ['number', 'series', 'end_date', 'status']
+    list_display = ['series', 'number', 'start_date', 'end_date', 'status']
     list_editable = ['status']
     inlines = [OrderInline]
     readonly_fields = ['created', 'updated']
-
+    search_fields = ['number']
+    list_filter = (
+        ('start_date', DateFieldListFilter),
+        ('end_date', DateFieldListFilter),
+        ('series'), ('status'),
+    )
     change_list_template = "admin/model_change_list.html"
 
     def get_urls(self):
@@ -49,7 +55,10 @@ class CardAdmin(admin.ModelAdmin):
         print(numbers_list)
         for n in numbers_list:
             print(int(n))
-        max_number = int(numbers_list[-1])
+        if numbers_list:
+            max_number = int(numbers_list[-1])
+        else:
+            max_number = 0
         for i in range(quantity):
             max_number += 1
             card_number = str(max_number).rjust(12, '0')
