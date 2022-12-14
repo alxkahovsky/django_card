@@ -35,3 +35,20 @@ Background-tasks я  использовал для тестовго что бы 
 "python manage.py migrate". Убедитесь что все миграции установлены "python manage.py showmigrations"
 5. Создайте учетную запись администратора "python manage.py createsuperuser"
 6. Запустите сервер разработки "python manage.py runserver"
+
+пример файла settings_local.py:
+
+from pathlib import Path
+
+
+DEBUG = True
+ALLOWED_HOSTS = ['*']
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'your_db_name.sqlite3',
+    }
+}
